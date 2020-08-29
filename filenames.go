@@ -140,15 +140,19 @@ func fixFilename(filename string) string {
 func main() {
 	fileNames := ListFiles([]string{".md"})
 
-	//var toFix map[string]string
-	for i, fileName := range fileNames {
+	var toFix map[string]string
+	toFix = make(map[string]string)
+	for _, fileName := range fileNames {
 		fixedName := fixFilename(fileName)
 		if fileName != fixedName {
-			fmt.Printf("%d. was: [%s]\n   now: [%s]\n\n", i, fileName, fixedName)
-			//toFix[fileName] = fixedName
+			//fmt.Printf("%d. was: [%s]\n   now: [%s]\n\n", i, fileName, fixedName)
+			toFix[fileName] = fixedName
 		} else {
 			//fmt.Printf("%d. %s is a valid file name", i, fileName)
 			_ = true
 		}
+	}
+	for key, value := range toFix {
+		fmt.Printf("Key: %s\nVal: %s\n\n", key, value)
 	}
 }
