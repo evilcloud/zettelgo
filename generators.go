@@ -9,7 +9,7 @@ import (
 )
 
 // Generate string with the current timestamp
-func timeId(args ...time.Time) string {
+func timeID(args ...time.Time) string {
 	t := time.Now()
 	if len(args) > 1 {
 		t = args[0]
@@ -22,17 +22,17 @@ func timeId(args ...time.Time) string {
 // Split a filename into components and return struct
 func trinitifyFileName(fileName string) fileNameInfo {
 	var (
-		possibleId []string
+		possibleID []string
 		ret        fileNameInfo
 	)
 
 	ret.extension = filepath.Ext(fileName)
 	ret.pureName = strings.TrimSuffix(fileName, ret.extension)
 
-	possibleId = strings.Split(ret.pureName, " ")
-	_, err := strconv.Atoi(possibleId[0])
-	if err == nil && len(possibleId[0]) >= numLength {
-		ret.id = possibleId[0]
+	possibleID = strings.Split(ret.pureName, " ")
+	_, err := strconv.Atoi(possibleID[0])
+	if err == nil && len(possibleID[0]) >= numLength {
+		ret.id = possibleID[0]
 		ret.title = strings.TrimSpace(strings.TrimPrefix(ret.pureName, ret.id))
 	} else {
 		ret.id = ""

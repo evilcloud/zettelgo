@@ -20,11 +20,11 @@ type fileNameInfo struct {
 }
 
 // Rename file
-func renameFile(dir, oldFile, newFile string) (error, string) {
+func renameFile(dir, oldFile, newFile string) (string, error) {
 	n := newFile
 	if isFile(dir, n) {
 		fullName := trinitifyFileName(n)
-		timestamp := timeId()
+		timestamp := timeID()
 		fmt.Printf("File %s already exists, adding %s at the end \n", n, timestamp)
 		n = fullName.pureName + "_" + timestamp + fullName.extension
 	}
@@ -33,7 +33,7 @@ func renameFile(dir, oldFile, newFile string) (error, string) {
 	if err != nil {
 		log.Println(err)
 	}
-	return err, n
+	return n, err
 }
 
 // returns list of files from given directory with given list of extensions
@@ -81,17 +81,17 @@ func isDir(dir string) bool {
 func fixFilename(filename string) string {
 	f := trinitifyFileName(filename)
 	fTitle := cleanText(f.title)
-	newId := f.id
-	if newId == "" {
+	newID := f.id
+	if newID == "" {
 		fTime, err := times.Stat(path.Join(directory, filename))
 		if err != nil {
 			log.Panic(err)
 		}
 		if fTime.HasBirthTime() {
-			newId = timeId(fTime.BirthTime())
+			newID = timeID(fTime.BirthTime())
 		} else {
-			newId = timeId()
+			newID = timeID()
 		}
 	}
-	return fmt.Sprintf(strings.TrimSpace(newId+" "+fTitle) + f.extension)
+	return fmt.Sprintf(strings.TrimSpace(newID+" "+fTitle) + f.extension)
 }
