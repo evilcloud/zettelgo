@@ -7,17 +7,9 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"strconv"
 	"strings"
-	"time"
 
-	"github.com/mozillazg/go-unidecode"
 	"gopkg.in/djherbis/times.v1"
-)
-
-const (
-	directory string = "/Users/kg/Dropbox/academic"
-	numLength = 12
 )
 
 type fileNameInfo struct {
@@ -27,20 +19,10 @@ type fileNameInfo struct {
 	title     string
 }
 
-// Generate string with the current timestamp
-func timeId() string {
-	t := time.Now()
-	return fmt.Sprintf(t.Format("20060102150405"))
-}
-
-func preTimeId(t time.Time) string {
-	return fmt.Sprintf(t.Format("20060102150405"))
-}
-
 // Rename file
 func renameFile(dir, oldFile, newFile string) (error, string) {
 	n := newFile
-	if isFile(dir, n){
+	if isFile(dir, n) {
 		fullName := trinitifyFileName(n)
 		timestamp := timeId()
 		fmt.Printf("File %s already exists, adding %s at the end \n", n, timestamp)
@@ -55,7 +37,7 @@ func renameFile(dir, oldFile, newFile string) (error, string) {
 }
 
 // returns list of files from given directory with given list of extensions
-func ListFiles(extensions []string) []string {
+func listFiles(extensions []string) []string {
 	if !isDir(directory) {
 		log.Panic("directory %s not found")
 	}
@@ -84,44 +66,21 @@ func ListFiles(extensions []string) []string {
 	return ret
 }
 
-
 // Checking if file exists
 func isFile(dir, name string) bool {
 	_, err := os.Stat(path.Join(dir, name))
 	return err == nil
 }
 
+// Checking if directory exists
 func isDir(dir string) bool {
 	_, err := os.Stat(directory)
 	return err == nil
-	}
-
-
-// Split a filename into components and return struct
-func trinitifyFileName(fileName string) fileNameInfo {
-	var (
-		possibleId []string
-		ret        fileNameInfo
-	)
-
-	ret.extension = filepath.Ext(fileName)
-	ret.pureName = strings.TrimSuffix(fileName, ret.extension)
-
-	possibleId = strings.Split(ret.pureName, " ")
-	_, err := strconv.Atoi(possibleId[0])
-	if err == nil && len(possibleId[0]) >= numLength{
-		ret.id = possibleId[0]
-		ret.title = strings.TrimSpace(strings.TrimPrefix(ret.pureName, ret.id))
-	} else {
-		ret.id = ""
-		ret.title = ret.pureName
-	}
-	return ret
 }
 
 func fixFilename(filename string) string {
 	f := trinitifyFileName(filename)
-	fTitle := unidecode.Unidecode(f.title)
+	fTitle := cleanText(f.title)
 	newId := f.id
 	if newId == "" {
 		fTime, err := times.Stat(path.Join(directory, filename))
@@ -129,30 +88,10 @@ func fixFilename(filename string) string {
 			log.Panic(err)
 		}
 		if fTime.HasBirthTime() {
-			newId = preTimeId(fTime.BirthTime())
+			newId = timeId(fTime.BirthTime())
 		} else {
 			newId = timeId()
 		}
 	}
-	return fmt.Sprintf(newId + " " + fTitle + f.extension)
-}
-
-func main() {
-	fileNames := ListFiles([]string{".md"})
-
-	var toFix map[string]string
-	toFix = make(map[string]string)
-	for _, fileName := range fileNames {
-		fixedName := fixFilename(fileName)
-		if fileName != fixedName {
-			//fmt.Printf("%d. was: [%s]\n   now: [%s]\n\n", i, fileName, fixedName)
-			toFix[fileName] = fixedName
-		} else {
-			//fmt.Printf("%d. %s is a valid file name", i, fileName)
-			_ = true
-		}
-	}
-	for key, value := range toFix {
-		fmt.Printf("Key: %s\nVal: %s\n\n", key, value)
-	}
+	return fmt.Sprintf(strings.TrimSpace(newId+" "+fTitle) + f.extension)
 }
